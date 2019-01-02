@@ -1,0 +1,74 @@
+configure: Configuration created at Wed Jan  2 15:15:54 CST 2019.
+checking for basename... /usr/bin/basename
+checking for bash... /bin/bash
+checking for cat... /bin/cat
+checking for chmod... /bin/chmod
+checking for cmp... /usr/bin/cmp
+checking for comm... /usr/bin/comm
+checking for cp... /bin/cp
+checking for cut... /usr/bin/cut
+checking for date... /bin/date
+checking for gdiff... no
+checking for diff... /usr/bin/diff
+checking for dirname... /usr/bin/dirname
+checking for echo... /bin/echo
+checking for expr... /bin/expr
+checking for file... /usr/bin/file
+checking for find... /usr/bin/find
+checking for head... /usr/bin/head
+checking for gunzip... /usr/bin/gunzip
+checking for pigz... no
+checking for gzip... /usr/bin/gzip
+checking for ln... /bin/ln
+checking for ls... /bin/ls
+checking for mkdir... /bin/mkdir
+checking for mktemp... /usr/bin/mktemp
+checking for mv... /bin/mv
+checking for nawk... no
+checking for gawk... no
+checking for awk... /usr/bin/awk
+checking for printf... /usr/bin/printf
+checking for greadlink... no
+checking for readlink... /usr/bin/readlink
+checking for rm... /bin/rm
+checking for rmdir... /bin/rmdir
+checking for sh... /bin/sh
+checking for sort... /usr/bin/sort
+checking for tail... /usr/bin/tail
+checking for gtar... no
+checking for tar... /usr/bin/tar
+checking for tee... /usr/bin/tee
+checking for touch... /usr/bin/touch
+checking for tr... /usr/bin/tr
+checking for uname... /usr/bin/uname
+checking for uniq... /usr/bin/uniq
+checking for wc... /usr/bin/wc
+checking for which... /usr/bin/which
+checking for xargs... /usr/bin/xargs
+checking for gawk... no
+checking for mawk... no
+checking for nawk... no
+checking for awk... awk
+checking for grep that handles long lines and -e... /usr/bin/grep
+checking for egrep... /usr/bin/grep -E
+checking for fgrep... /usr/bin/grep -F
+checking for a sed that does not truncate output... /usr/bin/sed
+checking for cygpath... no
+checking for df... /bin/df
+checking for cpio... /usr/bin/cpio
+checking for nice... /usr/bin/nice
+checking for pandoc... no
+checking build system type... x86_64-apple-darwin18.0.0
+checking host system type... x86_64-apple-darwin18.0.0
+checking target system type... x86_64-apple-darwin18.0.0
+checking openjdk-build os-cpu... macosx-x86_64
+checking openjdk-target os-cpu... macosx-x86_64
+configure: --with-target-bits are set to build platform address size; argument has no meaning
+checking compilation type... native
+checking for top-level directory... /Users/yunai/Java/test/jdk11
+checking if custom source is suppressed (openjdk-only)... no
+checking which variant of the JDK to build... normal
+checking which debug level to use... fastdebug
+checking which variants of the JVM to build... server
+checking for sdk name... 
+configure: error: No xcodebuild tool and no system framework headers found, use --with-sysroot or --with-sdk-name to provide a path to a valid SDK
