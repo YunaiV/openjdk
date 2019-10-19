@@ -600,6 +600,8 @@ public abstract class AbstractList<E> extends AbstractCollection<E> implements L
     }
 
     /**
+     * 数组修改次数
+     *
      * The number of times this list has been <i>structurally modified</i>.
      * Structural modifications are those that change the size of the
      * list, or otherwise perturb it in such a fashion that iterations in
