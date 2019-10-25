@@ -363,11 +363,14 @@ public abstract class AbstractCollection<E> implements Collection<E> {
     public boolean removeAll(Collection<?> c) {
         Objects.requireNonNull(c);
         boolean modified = false;
+        // 获得迭代器
         Iterator<?> it = iterator();
+        // 通过迭代器遍历
         while (it.hasNext()) {
+            // 如果 c 中存在该元素，则进行移除
             if (c.contains(it.next())) {
                 it.remove();
-                modified = true;
+                modified = true; // 标记修改
             }
         }
         return modified;
@@ -398,8 +401,11 @@ public abstract class AbstractCollection<E> implements Collection<E> {
     public boolean retainAll(Collection<?> c) {
         Objects.requireNonNull(c);
         boolean modified = false;
+        // 获得迭代器
         Iterator<E> it = iterator();
+        // 通过迭代器遍历
         while (it.hasNext()) {
+            // 如果 c 中不存在该元素，则进行移除
             if (!c.contains(it.next())) {
                 it.remove();
                 modified = true;

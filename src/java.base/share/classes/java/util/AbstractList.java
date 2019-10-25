@@ -341,12 +341,21 @@ public abstract class AbstractList<E> extends AbstractCollection<E> implements L
     }
 
     private class Itr implements Iterator<E> {
+
         /**
+         * 下一个访问元素的位置，从下标 0 开始。
+         *
          * Index of element to be returned by subsequent call to next.
          */
         int cursor = 0;
 
         /**
+         * 上一次访问元素的位置。
+         *
+         * 1. 初始化为 -1 ，表示无上一个访问的元素
+         * 2. 遍历到下一个元素时，lastRet 会指向当前元素，而 cursor 会指向下一个元素。这样，如果我们要实现 remove 方法，移除当前元素，就可以实现了。
+         * 3. 移除元素时，设置为 -1 ，表示最后访问的元素不存在了，都被移除咧。
+         *
          * Index of element returned by most recent call to next or
          * previous.  Reset to -1 if this element is deleted by a call
          * to remove.
@@ -354,6 +363,10 @@ public abstract class AbstractList<E> extends AbstractCollection<E> implements L
         int lastRet = -1;
 
         /**
+         * 创建迭代器时，数组修改次数。
+         *
+         * 在迭代过程中，如果数组发生了变化，会抛出 ConcurrentModificationException 异常。
+         *
          * The modCount value that the iterator believes that the backing
          * List should have.  If this expectation is violated, the iterator
          * has detected concurrent modification.
@@ -365,14 +378,19 @@ public abstract class AbstractList<E> extends AbstractCollection<E> implements L
         }
 
         public E next() {
+            // 校验是否数组发生了变化
             checkForComodification();
             try {
+                // 获得当前 E 元素
                 int i = cursor;
                 E next = get(i);
+                // lastRet 指向当前位置
                 lastRet = i;
+                // cursor 指向下一个位置
                 cursor = i + 1;
                 return next;
             } catch (IndexOutOfBoundsException e) {
+                // 超过范围，则抛出异常
                 checkForComodification();
                 throw new NoSuchElementException();
             }
@@ -495,6 +513,7 @@ public abstract class AbstractList<E> extends AbstractCollection<E> implements L
      */
     public List<E> subList(int fromIndex, int toIndex) {
         subListRangeCheck(fromIndex, toIndex, size());
+        // 根据判断 RandomAccess 接口，判断是否支持随机访问
         return (this instanceof RandomAccess ?
                 new RandomAccessSubList<>(this, fromIndex, toIndex) :
                 new SubList<>(this, fromIndex, toIndex));
@@ -535,19 +554,23 @@ public abstract class AbstractList<E> extends AbstractCollection<E> implements L
      * @return {@code true} if the specified object is equal to this list
      */
     public boolean equals(Object o) {
+        // 如果 o 就是自己，直接返回 true
         if (o == this)
             return true;
+        // 如果不为 List 类型，直接返回 false
         if (!(o instanceof List))
             return false;
 
+        // 创建迭代器，顺序遍历比对
         ListIterator<E> e1 = listIterator();
         ListIterator<?> e2 = ((List<?>) o).listIterator();
         while (e1.hasNext() && e2.hasNext()) {
             E o1 = e1.next();
             Object o2 = e2.next();
-            if (!(o1==null ? o2==null : o1.equals(o2)))
+            if (!(o1==null ? o2==null : o1.equals(o2))) // 如果不相等，返回 false
                 return false;
         }
+        // 如果有迭代器没有遍历完，说明两者长度不等，所以就不相等；否则，就相等了
         return !(e1.hasNext() || e2.hasNext());
     }
 
@@ -563,6 +586,7 @@ public abstract class AbstractList<E> extends AbstractCollection<E> implements L
      */
     public int hashCode() {
         int hashCode = 1;
+        // 遍历，求哈希
         for (E e : this)
             hashCode = 31*hashCode + (e==null ? 0 : e.hashCode());
         return hashCode;
