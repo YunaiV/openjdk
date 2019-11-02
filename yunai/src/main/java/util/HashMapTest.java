@@ -17,15 +17,19 @@ public class HashMapTest {
 //        test03();
 //        System.out.println(178913281 % (16));
 //        System.out.println((-10 & (64)) & 64);
+        test01();
     }
 
     public static void test01() {
-        Map<String, Object> map = new HashMap<>(4, 0.75F);
+        Map<String, Object> map = new HashMap<>((int)(6 / 0.75f), 0.75F);
         map.put("1", new Object());
         map.put("2", new Object());
         map.put("3", new Object());
         map.put("4", new Object());
         map.put("5", new Object());
+        map.put("6", new Object());
+//        map.put("7", new Object());
+//        map.put("8", new Object());
     }
 
     public static void test02() {
