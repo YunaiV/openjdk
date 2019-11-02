@@ -190,26 +190,43 @@ public class LinkedHashMap<K,V>
      * HashMap.Node subclass for normal LinkedHashMap entries.
      */
     static class Entry<K,V> extends HashMap.Node<K,V> {
-        Entry<K,V> before, after;
+
+        Entry<K,V> before, // 前一个节点
+                after; // 后一个节点
+
         Entry(int hash, K key, V value, Node<K,V> next) {
             super(hash, key, value, next);
         }
+
     }
 
     @java.io.Serial
     private static final long serialVersionUID = 3801124242820219131L;
 
     /**
+     * 头节点。
+     *
+     * 越老的节点，放在越前面。所以头节点，指向链表的开头
+     *
      * The head (eldest) of the doubly linked list.
      */
     transient LinkedHashMap.Entry<K,V> head;
 
     /**
+     * 尾节点
+     *
+     * 越新的节点，放在越后面。所以尾节点，指向链表的结尾
+     *
      * The tail (youngest) of the doubly linked list.
      */
     transient LinkedHashMap.Entry<K,V> tail;
 
     /**
+     * 是否按照访问的顺序。
+     *
+     * true ：按照 key-value 的访问顺序进行访问。
+     * false ：按照 key-value 的插入顺序进行访问。
+     *
      * The iteration ordering method for this linked hash map: {@code true}
      * for access-order, {@code false} for insertion-order.
      *
@@ -221,10 +238,14 @@ public class LinkedHashMap<K,V>
 
     // link at the end of list
     private void linkNodeLast(LinkedHashMap.Entry<K,V> p) {
+        // 记录原尾节点到 last 中
         LinkedHashMap.Entry<K,V> last = tail;
+        // 设置 tail 指向 p ，变更新的尾节点
         tail = p;
+        // 如果原尾节点 last 为空，说明 head 也为空，所以 head 也指向 p
         if (last == null)
             head = p;
+        // last <=> p ，相互指向
         else {
             p.before = last;
             last.after = p;
@@ -249,14 +270,19 @@ public class LinkedHashMap<K,V>
     // overrides of HashMap hook methods
 
     void reinitialize() {
+        // 调用父方法，初始化
         super.reinitialize();
+        // 标记 head 和 tail 为 null
         head = tail = null;
     }
 
     Node<K,V> newNode(int hash, K key, V value, Node<K,V> e) {
+        // 创建 Entry 节点
         LinkedHashMap.Entry<K,V> p =
             new LinkedHashMap.Entry<>(hash, key, value, e);
+        // 添加到结尾
         linkNodeLast(p);
+        // 返回
         return p;
     }
 
@@ -282,22 +308,31 @@ public class LinkedHashMap<K,V>
     }
 
     void afterNodeRemoval(Node<K,V> e) { // unlink
+        // 将 e 赋值给 p 【因为要 Node 类型转换成 Entry 类型】
+        // 同时 b、a 分别是 e 的前后节点
         LinkedHashMap.Entry<K,V> p =
             (LinkedHashMap.Entry<K,V>)e, b = p.before, a = p.after;
+        // 将 p 从链表中移除
         p.before = p.after = null;
+        // 处理 b 的下一个节点指向 a
         if (b == null)
             head = a;
         else
             b.after = a;
+        // 处理 a 的前一个节点指向 b
         if (a == null)
             tail = b;
         else
             a.before = b;
     }
 
+    // evict 翻译为驱逐，表示是否允许移除元素
     void afterNodeInsertion(boolean evict) { // possibly remove eldest
         LinkedHashMap.Entry<K,V> first;
+        // first = head 记录当前头节点。因为移除从头开始，最老
+        // removeEldestEntry(first) 判断是否满足移除最老节点
         if (evict && (first = head) != null && removeEldestEntry(first)) {
+            // 移除指定节点
             K key = first.key;
             removeNode(hash(key), key, null, false, true);
         }
@@ -305,32 +340,45 @@ public class LinkedHashMap<K,V>
 
     void afterNodeAccess(Node<K,V> e) { // move node to last
         LinkedHashMap.Entry<K,V> last;
+        // accessOrder 判断必须是满足按访问顺序。
+        // (last = tail) != e 将 tail 赋值给 last ，并且判断是否 e 已经是队尾。如果是队尾，就不用处理了。
         if (accessOrder && (last = tail) != e) {
+            // 将 e 赋值给 p 【因为要 Node 类型转换成 Entry 类型】
+            // 同时 b、a 分别是 e 的前后节点
             LinkedHashMap.Entry<K,V> p =
                 (LinkedHashMap.Entry<K,V>)e, b = p.before, a = p.after;
+            // 第一步，将 p 从链表中移除
             p.after = null;
+            // 处理 b 的下一个节点指向 a
             if (b == null)
                 head = a;
             else
                 b.after = a;
+            // 处理 a 的前一个节点指向 b
             if (a != null)
                 a.before = b;
             else
                 last = b;
+            // 第二步，将 p 添加到链表的尾巴。实际这里的代码，和 linkNodeLast 是一致的。
             if (last == null)
                 head = p;
             else {
                 p.before = last;
                 last.after = p;
             }
+            // tail 指向 p ，实际就是 e 。
             tail = p;
+            // 增加修改次数
             ++modCount;
         }
     }
 
     void internalWriteEntries(java.io.ObjectOutputStream s) throws IOException {
+        // 通过 head 顺序遍历，从头到尾
         for (LinkedHashMap.Entry<K,V> e = head; e != null; e = e.after) {
+            // 写入 key
             s.writeObject(e.key);
+            // 写入 value
             s.writeObject(e.value);
         }
     }
@@ -403,7 +451,6 @@ public class LinkedHashMap<K,V>
         this.accessOrder = accessOrder;
     }
 
-
     /**
      * Returns {@code true} if this map maps one or more keys to the
      * specified value.
@@ -413,8 +460,10 @@ public class LinkedHashMap<K,V>
      *         specified value
      */
     public boolean containsValue(Object value) {
+        // 通过 head 顺序遍历，从头到尾
         for (LinkedHashMap.Entry<K,V> e = head; e != null; e = e.after) {
             V v = e.value;
+            // 判断是否相等
             if (v == value || (value != null && value.equals(v)))
                 return true;
         }
@@ -437,9 +486,11 @@ public class LinkedHashMap<K,V>
      * distinguish these two cases.
      */
     public V get(Object key) {
+        // 获得 key 对应的 Node
         Node<K,V> e;
         if ((e = getNode(hash(key), key)) == null)
             return null;
+        // 如果访问到，回调节点被访问
         if (accessOrder)
             afterNodeAccess(e);
         return e.value;
@@ -449,10 +500,12 @@ public class LinkedHashMap<K,V>
      * {@inheritDoc}
      */
     public V getOrDefault(Object key, V defaultValue) {
-       Node<K,V> e;
+        // 获得 key 对应的 Node
+        Node<K,V> e;
        if ((e = getNode(hash(key), key)) == null)
            return defaultValue;
-       if (accessOrder)
+        // 如果访问到，回调节点被访问
+        if (accessOrder)
            afterNodeAccess(e);
        return e.value;
    }
@@ -461,7 +514,9 @@ public class LinkedHashMap<K,V>
      * {@inheritDoc}
      */
     public void clear() {
+        // 清空
         super.clear();
+        // 标记 head 和 tail 为 null
         head = tail = null;
     }
 
@@ -529,9 +584,11 @@ public class LinkedHashMap<K,V>
      * @return a set view of the keys contained in this map
      */
     public Set<K> keySet() {
+        // 获得 keySet 缓存
         Set<K> ks = keySet;
+        // 如果不存在，则进行创建
         if (ks == null) {
-            ks = new LinkedKeySet();
+            ks = new LinkedKeySet(); // LinkedKeySet 是 LinkedHashMap 自定义的
             keySet = ks;
         }
         return ks;
@@ -541,6 +598,7 @@ public class LinkedHashMap<K,V>
     final <T> T[] keysToArray(T[] a) {
         Object[] r = a;
         int idx = 0;
+        // 通过 head 顺序遍历，从头到尾
         for (LinkedHashMap.Entry<K,V> e = head; e != null; e = e.after) {
             r[idx++] = e.key;
         }
@@ -551,6 +609,7 @@ public class LinkedHashMap<K,V>
     final <T> T[] valuesToArray(T[] a) {
         Object[] r = a;
         int idx = 0;
+        // 通过 head 顺序遍历，从头到尾
         for (LinkedHashMap.Entry<K,V> e = head; e != null; e = e.after) {
             r[idx++] = e.value;
         }
@@ -558,6 +617,7 @@ public class LinkedHashMap<K,V>
     }
 
     final class LinkedKeySet extends AbstractSet<K> {
+
         public final int size()                 { return size; }
         public final void clear()               { LinkedHashMap.this.clear(); }
         public final Iterator<K> iterator() {
@@ -611,9 +671,11 @@ public class LinkedHashMap<K,V>
      * @return a view of the values contained in this map
      */
     public Collection<V> values() {
+        // 获得 values 缓存
         Collection<V> vs = values;
+        // 如果不存在，则进行创建
         if (vs == null) {
-            vs = new LinkedValues();
+            vs = new LinkedValues(); // LinkedValues 是 LinkedHashMap 自定义的
             values = vs;
         }
         return vs;
@@ -671,6 +733,7 @@ public class LinkedHashMap<K,V>
      */
     public Set<Map.Entry<K,V>> entrySet() {
         Set<Map.Entry<K,V>> es;
+        // LinkedEntrySet 是 LinkedHashMap 自定义的
         return (es = entrySet) == null ? (entrySet = new LinkedEntrySet()) : es;
     }
 
@@ -719,8 +782,10 @@ public class LinkedHashMap<K,V>
         if (action == null)
             throw new NullPointerException();
         int mc = modCount;
+        // 通过 head 顺序遍历，从头到尾，逐个交给 BiConsumer 处理
         for (LinkedHashMap.Entry<K,V> e = head; e != null; e = e.after)
             action.accept(e.key, e.value);
+        // 如果发生改变，抛出 ConcurrentModificationException 异常
         if (modCount != mc)
             throw new ConcurrentModificationException();
     }
@@ -729,8 +794,10 @@ public class LinkedHashMap<K,V>
         if (function == null)
             throw new NullPointerException();
         int mc = modCount;
+        // 通过 head 顺序遍历，从头到尾，逐个交给 BiFunction 处理
         for (LinkedHashMap.Entry<K,V> e = head; e != null; e = e.after)
             e.value = function.apply(e.key, e.value);
+        // 如果发生改变，抛出 ConcurrentModificationException 异常
         if (modCount != mc)
             throw new ConcurrentModificationException();
     }
@@ -738,8 +805,18 @@ public class LinkedHashMap<K,V>
     // Iterators
 
     abstract class LinkedHashIterator {
+
+        /**
+         * 下一个节点
+         */
         LinkedHashMap.Entry<K,V> next;
+        /**
+         * 当前节点
+         */
         LinkedHashMap.Entry<K,V> current;
+        /**
+         * 修改次数
+         */
         int expectedModCount;
 
         LinkedHashIterator() {
@@ -754,39 +831,54 @@ public class LinkedHashMap<K,V>
 
         final LinkedHashMap.Entry<K,V> nextNode() {
             LinkedHashMap.Entry<K,V> e = next;
+            // 如果发生了修改，抛出 ConcurrentModificationException 异常
             if (modCount != expectedModCount)
                 throw new ConcurrentModificationException();
+            // 如果 e 为空，说明没有下一个节点，则抛出 NoSuchElementException 异常
             if (e == null)
                 throw new NoSuchElementException();
+            // 遍历到下一个节点
             current = e;
             next = e.after;
             return e;
         }
 
         public final void remove() {
+            // 移除当前节点
             Node<K,V> p = current;
             if (p == null)
                 throw new IllegalStateException();
+            // 如果发生了修改，抛出 ConcurrentModificationException 异常
             if (modCount != expectedModCount)
                 throw new ConcurrentModificationException();
+            // 标记 current 为空，因为被移除了
             current = null;
+            // 移除节点
             removeNode(p.hash, p.key, null, false, false);
+            // 修改 expectedModCount 次数
             expectedModCount = modCount;
         }
+
     }
 
     final class LinkedKeyIterator extends LinkedHashIterator
         implements Iterator<K> {
+
+        // key
         public final K next() { return nextNode().getKey(); }
     }
 
     final class LinkedValueIterator extends LinkedHashIterator
         implements Iterator<V> {
+
+        // value
         public final V next() { return nextNode().value; }
     }
 
     final class LinkedEntryIterator extends LinkedHashIterator
         implements Iterator<Map.Entry<K,V>> {
+
+        // Entry
         public final Map.Entry<K,V> next() { return nextNode(); }
     }
 
